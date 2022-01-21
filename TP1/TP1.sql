@@ -1,0 +1,39 @@
+-- Partie n°1 : Exprimez les requetes suivantes en langage SQL :
+--- 1. Toutes les informations sur les voyageurs.
+select * from voyageur;
+--- 2. Les voyageurs âgés entre 40 et 50 ans.
+select * from voyageur where age between 40 and 50;
+--- 3. Les voyageurs de moins de 45 ans et leurs éventuelles sorties.
+
+--- 4. Les voyageurs qui n’ont jamais fait de sorties (avec sous-requête).
+select * from voyageur where idVoyageur not in (select idVoyageur from sortie);
+--- 5. Les voyageurs qui vivent dans une ville contenant ’en’ et qui font des voyages (avec sous-requetes).
+select * from voyageur where ville like '%en%' and idVoyageur in (select idVoyageur from sortie);
+--- 6. Les voyageurs qui ont fait des sorties en 2011 et 2012.
+--- 7. Les voyageurs qui ont fait des sorties en 2011 ou 2012.
+--- 8. Le voyageur le plus âgé (avec sous-requête).
+--- 9. Le nombre total des voyageurs.
+--- 10. L’âge moyen des voyageurs.
+--- 11. L’identifiant et le nom des voyages de plus de 20 kms.
+--- 12. Les voyages qui ont une suite.
+--- 13. Les informations sur les voyages ainsi que sur le voyage qui suit.
+--- 14. Le voyage qui n’a jamais été fait par un voyageur (avec sous-requête).
+--- 15. La sortie la plus longue (avec sous-requête).
+--- 16. La distance maximale des voyages.
+--- 17. Le nombre de voyage de la région de Provence Alpes Côte d'Azur. 
+--- 18. Le nombre de voyages effectuées par voyageur.
+--- 19. Le nombre de voyage effectuées par région.
+--- 20. La sortie la plus récente.
+--- 21. Le nombre de sorties effectuées par jour.
+--- 22. Le nombre de sorties effectuées par an.
+--- 23. La sortie la plus récente.
+
+-- Partie n°2 : Effectuez les mises à jour suivantes :
+--- 1. Mettre à jour la ville de naissance du voyageur Nicolas par Paris.
+--- 2. Mettre en majuscule tous les noms des voyageurs.
+--- 3. Mettre à jour les voyages qui n’ont pas de suite par la valeur 0.
+--- 4. Ajouter un nouveau attribut ’pays’ à la table voyage et mettre à jour la colonne par la valeur France.
+--- 5. Ajouter deux contraintes d’intégrité permettant de garantir que la distance des voyages ainsique l’âge des voyageurs soient strictement positives.
+-- Partie n°3 : Création des vues :
+--- 1. Créer une vue contenant les voyageurs de moins de 50 ans.
+--- 2. Créer une vue contenant les noms des voyageurs de moins de 50 qui ont fait un voyage à Rouen (utiliser la vue précédemment crée).
