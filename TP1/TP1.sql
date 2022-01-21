@@ -10,22 +10,44 @@ select * from voyageur where idVoyageur not in (select idVoyageur from sortie);
 --- 5. Les voyageurs qui vivent dans une ville contenant ’en’ et qui font des voyages (avec sous-requetes).
 select * from voyageur where ville like '%en%' and idVoyageur in (select idVoyageur from sortie);
 --- 6. Les voyageurs qui ont fait des sorties en 2011 et 2012.
+select distinct * from voyageur, sortie where voyageur.idVoyageur = sortie.idVoyageur AND extract(year from dateSortie) = 2011 
+    intersect
+select distinct * from voyageur, sortie where voyageur.idVoyageur = sortie.idVoyageur AND extract(year from dateSortie) = 2012;
 --- 7. Les voyageurs qui ont fait des sorties en 2011 ou 2012.
+select distinct * from voyageur, sortie where voyageur.idVoyageur = sortie.idVoyageur AND extract(year from dateSortie) = 2011 
+    union
+select distinct * from voyageur, sortie where voyageur.idVoyageur = sortie.idVoyageur AND extract(year from dateSortie) = 2012;
 --- 8. Le voyageur le plus âgé (avec sous-requête).
+select * from voyageur where age >= all(select age from voyageur);
 --- 9. Le nombre total des voyageurs.
+select count(*) from voyageur;
 --- 10. L’âge moyen des voyageurs.
+select avg(age) from voyageur;
+
+-- thks Nicolas
 --- 11. L’identifiant et le nom des voyages de plus de 20 kms.
+SELECT IDVOYAGE, NOMVOYAGE FROM VOYAGE WHERE DISTANCE > 20;
 --- 12. Les voyages qui ont une suite.
+SELECT * FROM VOYAGE WHERE SUITEVOYAGE IS NOT NULL;
 --- 13. Les informations sur les voyages ainsi que sur le voyage qui suit.
+SELECT V1.*, V2.* FROM VOYAGE V1 INNER JOIN VOYAGE V2 ON V1.SUITEVOYAGE = V2.IDVOYAGE;
 --- 14. Le voyage qui n’a jamais été fait par un voyageur (avec sous-requête).
+SELECT * FROM VOYAGE WHERE IDVOYAGE NOT IN (SELECT IDVOYAGE FROM SORTIE);
 --- 15. La sortie la plus longue (avec sous-requête).
+SELECT * FROM SORTIE WHERE DUREESORTIE = (SELECT MAX(DUREESORTIE) FROM SORTIE);
 --- 16. La distance maximale des voyages.
+SELECT MAX(DISTANCE) AS DISTANCE_MAXIMALE FROM VOYAGE;
 --- 17. Le nombre de voyage de la région de Provence Alpes Côte d'Azur. 
+SELECT COUNT(*) AS NB_VOYAGES_PACA FROM VOYAGE WHERE REGION LIKE 'Provence Alpes Côte dAzur';
 --- 18. Le nombre de voyages effectuées par voyageur.
 --- 19. Le nombre de voyage effectuées par région.
+SELECT REGION, COUNT(*) AS NB_VOYAGES FROM VOYAGE V GROUP BY REGION;
 --- 20. La sortie la plus récente.
+SELECT * FROM SORTIE WHERE DATESORTIE = (SELECT MAX(DATESORTIE) FROM SORTIE);
 --- 21. Le nombre de sorties effectuées par jour.
+SELECT DATESORTIE, COUNT(*) AS NB_SORTIES FROM SORTIE GROUP BY DATESORTIE ORDER BY DATESORTIE;
 --- 22. Le nombre de sorties effectuées par an.
+SELECT EXTRACT(YEAR FROM DATESORTIE) AS ANNEE, COUNT(*) AS NB_SORTIES FROM SORTIE GROUP BY EXTRACT(YEAR FROM DATESORTIE) ORDER BY EXTRACT(YEAR FROM DATESORTIE);
 --- 23. La sortie la plus récente.
 
 -- Partie n°2 : Effectuez les mises à jour suivantes :
