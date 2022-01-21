@@ -52,10 +52,19 @@ SELECT EXTRACT(YEAR FROM DATESORTIE) AS ANNEE, COUNT(*) AS NB_SORTIES FROM SORTI
 
 -- Partie n°2 : Effectuez les mises à jour suivantes :
 --- 1. Mettre à jour la ville de naissance du voyageur Nicolas par Paris.
+UPDATE VOYAGEUR SET VILLE = 'Paris' WHERE NOMVOYAGEUR LIKE 'Nicolas';
 --- 2. Mettre en majuscule tous les noms des voyageurs.
+UPDATE VOYAGEUR SET NOMVOYAGEUR = UPPER(NOMVOYAGEUR);
 --- 3. Mettre à jour les voyages qui n’ont pas de suite par la valeur 0.
+UPDATE VOYAGE SET SUITEVOYAGE = 0 WHERE SUITEVOYAGE IS NULL;
 --- 4. Ajouter un nouveau attribut ’pays’ à la table voyage et mettre à jour la colonne par la valeur France.
+ALTER TABLE VOYAGE ADD (PAYS VARCHAR2(255));
+UPDATE VOYAGE SET PAYS = 'France';
 --- 5. Ajouter deux contraintes d’intégrité permettant de garantir que la distance des voyages ainsique l’âge des voyageurs soient strictement positives.
+ALTER TABLE VOYAGE ADD CONSTRAINT POSITIVE_DISTANCE CHECK (DISTANCE > 0);
+ALTER TABLE VOYAGEUR ADD CONSTRAINT POSITIVE_AGE CHECK (AGE > 0);
 -- Partie n°3 : Création des vues :
 --- 1. Créer une vue contenant les voyageurs de moins de 50 ans.
+create view moinsDe50ans (idVoyageur, nom, age, ville) as select * from voyageur where age < 50;
 --- 2. Créer une vue contenant les noms des voyageurs de moins de 50 qui ont fait un voyage à Rouen (utiliser la vue précédemment crée).
+CREATE VIEW VOYAGEURS_MOINS50ANS_NORMANDIE_V2 AS SELECT V1.NOMVOYAGEUR, V2.REGION FROM VOYAGEURS_MOINS50ANS V1 INNER JOIN SORTIE S ON V1.IDVOYAGEUR = S.IDVOYAGEUR INNER JOIN VOYAGE V2 ON V2.IDVOYAGE = S.IDVOYAGE WHERE V2.VILLE LIKE 'Rouen';
