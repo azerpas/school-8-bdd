@@ -45,6 +45,12 @@ begin
     end if; 
 end;
 -- 4. Écrire une procédure permettant d’afficher les informations d’un voyageur à partir de son identifiant (idVoyageur).
+create or replace procedure AffichVoyageur(idVoyag Voyageur.idVoyageur%type) as part Voyageur%rowtype;
+begin
+    select * into part from Voyageur where idVoyageur = idVoyag ;
+    dbms output.put_line (part.idVoyageur || ‘ ‘ || part.nomVoyageur || ‘ ‘ || part.ville || ‘ ‘ || part.age); 
+end;
+
 
 -- 5. Écrire un trigger qui se déclenche avant la suppression d’un voyageur. Le trigger devra supprimer toutes les sorties de ce voyageur.
 -- Faire le test avec la suppression du participant ’Nelson’.
