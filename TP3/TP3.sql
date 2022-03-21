@@ -54,6 +54,11 @@ end;
 
 -- 5. Écrire un trigger qui se déclenche avant la suppression d’un voyageur. Le trigger devra supprimer toutes les sorties de ce voyageur.
 -- Faire le test avec la suppression du participant ’Nelson’.
+create or replace trigger supp before delete on Voyageur for each row
+begin
+    delete from sortie where idVoyageur = :old.idVoyageur; 
+end;
+
 
 -- 6. Ajouter dans la table voyageur l’attribut catégorie.
 -- ▪ L’attribut catégorie devra contenir la catégorie du voyageur.
