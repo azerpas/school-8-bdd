@@ -26,6 +26,13 @@ else
 end if;
 end;
 -- 3. Mettre à jour l’attribut salTot d’un employé de la table EMPLOYES (cas d’insertion seulement).
+create or replace trigger MAJ SalTot
+    after insert on tache for each row
+begin
+    update employes set saltot = saltot + (:new. nbheures * 600)
+    where refemp = :new.refemp; 
+end;
+
 -- 4. Mettre à jour l’attribut nbheureseffectuees de la table PROJET.
 create of replace trigger NBHEURES
 after insert or delete or update on tache
