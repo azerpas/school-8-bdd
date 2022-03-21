@@ -78,5 +78,32 @@ begin
 end;
 -- 7. Il faut veiller sur la vérification de nombre d’heures effectuées, qui ne doit pas dépasser le nombre d’heures prévues pour la réalisation d’un projet. En cas de dépassement, il faut écrire un message dans la table TAB LOG prévue pour recueillir les anomalies constatées lors de la gestion des projets. Le schéma de la table TAB LOG est TAB LOG(NumPb, date pb, refproj, message). Le champ NumPb est un champ qui doit se remplir et s’incrémenter automatiquement.
 
+create table tablog (
+  num pb integer primary key,
+  datepb date,
+  refproj integer,
+  message varchar(500) ,
+  foreign key (refproj) references (refproj) 
+);
+ 
+
+create or replace trigger AUTOINCTABLOG before insert on tab log
+for each row
+declare
+maxval integer; begin
+ maxval := 0;
+select max(numpb) into maxval from tablog ; if maxval = 0 then
+:new.numpb := 1; else
+:new.numpb := :new.numpb + 1;
+ end if; end;
+
+create or replace trigger verifnbheureseffectuees after update on projet
+for each row
+begin
+if :new.nbheureseffectuees > :new.nbheuresprevues then insert into tablog (datepb , refproj , message)
+values (sysdate, :new.refproj, ’Incoherence’);
+end if;
+end;
+
 -- 8. La modification au niveau de la table TAB LOG est interdite, en cas de modification de celle-ci, on veut connaitre celui qui l’a modifié (l’utilisateur courant USER) ainsi que la date de cette modification. Ces informations seront automatiquement insérées dans la table AuditTable LOG(Num Pb, Modifie par, Date Modif). 
 
