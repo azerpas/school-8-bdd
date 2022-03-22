@@ -34,23 +34,34 @@ begin
 end;
 
 -- 4. Mettre à jour l’attribut nbheureseffectuees de la table PROJET.
-create of replace trigger NBHEURES
+create or replace trigger MAJ nbheureseffectuees 
 after insert or delete or update on tache
 for each row
 begin
-if inserting then
-    update projet
-    set nbheureseffectuees = nbheureseffectuees + :new.nbheures
-    where refproj = :new.refproj;
-end if;
-if updating then 
-    if :new.nbheures > :old.
+    if inserting then update projet
+        set nbheureseffectuees = nbheureseffectuees + :new.nbheures
+        where refproj = :new.refproj; 
+    end if;
+    if deleting then update projet
+        set nbheureseffectuees= nbheureseffectuees - :old.nbheures
+        where refproj = :old.refproj; 
+    end if;
+    if updating then
+        if :new.nbheures > :old.nbheures then
+            update projet set nbheureseffectuees= nbheureseffectuees+ (:new.nbheures - :old.nbheures)
+            where refproj = :new.refproj;
+        else
+            update projet set nbheureseffectuees = nbheureseffectuees - (:old.nbheures - :new.nbheures) 
+            where refproj= :new.refproj; 
+        end if;
+    end if; 
 end;
 -- 5. Mettre à jour automatiquement l’attribut NbProjet de la table EMPLOYES
 create or replace trigger MajNbProjet
 before insert on tache
 for each row
-declare nb integer;
+declare 
+    nb integer;
 begin
     nb := 0;
     select count(*) into nb 
@@ -76,34 +87,52 @@ begin
         raise_application_error(-20300, "vous êtes directeur");
     endif;
 end;
--- 7. Il faut veiller sur la vérification de nombre d’heures effectuées, qui ne doit pas dépasser le nombre d’heures prévues pour la réalisation d’un projet. En cas de dépassement, il faut écrire un message dans la table TAB LOG prévue pour recueillir les anomalies constatées lors de la gestion des projets. Le schéma de la table TAB LOG est TAB LOG(NumPb, date pb, refproj, message). Le champ NumPb est un champ qui doit se remplir et s’incrémenter automatiquement.
-
+-- 7. Il faut veiller sur la vérification de nombre d’heures effectuées, qui ne doit pas dépasser   le nombre d’heures prévues pour la réalisation d’un projet. 
+-- En cas de dépassement, il faut écrire un message dans la table TAB LOG prévue pour recueillir les anomalies constatées lors de la gestion des projets. 
+-- Le schéma de la table TAB LOG est TAB LOG(NumPb, date pb, refproj, message). Le champ NumPb est un champ qui doit se remplir et s’incrémenter automatiquement.
 create table tablog (
-  num pb integer primary key,
-  datepb date,
-  refproj integer,
-  message varchar(500) ,
-  foreign key (refproj) references (refproj) 
+    num pb integer primary key,
+    datepb date,
+    refproj integer,
+    message varchar(500) ,
+    foreign key (refproj) references (refproj) 
 );
- 
 
 create or replace trigger AUTOINCTABLOG before insert on tab log
 for each row
 declare
-maxval integer; begin
- maxval := 0;
-select max(numpb) into maxval from tablog ; if maxval = 0 then
-:new.numpb := 1; else
-:new.numpb := :new.numpb + 1;
- end if; end;
-
-create or replace trigger verifnbheureseffectuees after update on projet
-for each row
+    maxval integer; 
 begin
-if :new.nbheureseffectuees > :new.nbheuresprevues then insert into tablog (datepb , refproj , message)
-values (sysdate, :new.refproj, ’Incoherence’);
-end if;
+    maxval := 0;
+    select max(numpb) into maxval from tablog; 
+    if maxval = 0 then
+        :new.numpb := 1; 
+    else
+        :new.numpb := :new.numpb + 1;
+    end if; 
 end;
 
--- 8. La modification au niveau de la table TAB LOG est interdite, en cas de modification de celle-ci, on veut connaitre celui qui l’a modifié (l’utilisateur courant USER) ainsi que la date de cette modification. Ces informations seront automatiquement insérées dans la table AuditTable LOG(Num Pb, Modifie par, Date Modif). 
+create or replace trigger verifnbheureseffectuees 
+after update on projet
+for each row
+begin
+    if :new.nbheureseffectuees > :new.nbheuresprevues then 
+        insert into tablog (datepb, refproj, message) values (sysdate, :new.refproj, 'Incoherence');
+    end if;
+end;
 
+-- 8. La modification au niveau de la table TABLOG est interdite, en cas de modification de celle-ci, on veut connaitre celui qui l’a modifié (l’utilisateur courant USER) ainsi que la date de cette modification. 
+-- Ces informations seront automatiquement insérées dans la table AuditTableLOG(Num Pb, Modifie par, Date Modif). 
+create table auditTablelog (
+    numpb integer, 
+    modifieparvarchar(20), 
+    datemodif date, 
+    foreign key (numpb) references tablog (numpb)
+);
+
+create or replace trigger modiftablog 
+after update on tablog
+for each row
+begin
+    insert into auditTablelog values (:new.numpb, user, sysdate); 
+end;

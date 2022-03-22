@@ -48,7 +48,7 @@ end;
 create or replace procedure AffichVoyageur(idVoyag Voyageur.idVoyageur%type) as part Voyageur%rowtype;
 begin
     select * into part from Voyageur where idVoyageur = idVoyag ;
-    dbms output.put_line (part.idVoyageur || ‘ ‘ || part.nomVoyageur || ‘ ‘ || part.ville || ‘ ‘ || part.age); 
+    dbms output.put_line (part.idVoyageur || ' ' || part.nomVoyageur || ' ' || part.ville || ' ' || part.age); 
 end;
 
 
